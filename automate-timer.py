@@ -82,7 +82,8 @@ def automate_excel_process():
         excel.AskToUpdateLinks = False
         excel.EnableEvents = False
 
-        file_path = r"C:\Users\chg\OneDrive\NESTLE\Circana Pivot.xlsx" # local path to the file
+        file_path = input("Please enter the full file path to the Excel workbook: ").strip()
+        ##file_path = r"C:\Users\chg\OneDrive\NESTLE\Circana Pivot.xlsx" # local path to the file
         # file_path = r"C:\Users\NZShallaZu\NESTLE\Commercial Development - Documents\General\03 Shopper Centricity\Circana\Circana Pivots\Circana Pivot.xlsx"  # Sharepoint path
 
         if not os.path.exists(file_path):
