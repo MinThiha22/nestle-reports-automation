@@ -66,7 +66,7 @@ def stopwatch():
 
 # Main function to automate Excel process
 def automate_excel_process():
-    global stop_requested
+    global stop_requested, start_time
     try:
         pythoncom.CoInitialize()
 
@@ -82,13 +82,18 @@ def automate_excel_process():
         excel.AskToUpdateLinks = False
         excel.EnableEvents = False
 
-        file_path = input("Please enter the full file path to the Excel workbook: ").strip()
+        file_path = input("Please enter the full file path to the Excel workbook: ").strip().strip('"')
+        
         ##file_path = r"C:\Users\chg\OneDrive\NESTLE\Circana Pivot.xlsx" # local path to the file
         # file_path = r"C:\Users\NZShallaZu\NESTLE\Commercial Development - Documents\General\03 Shopper Centricity\Circana\Circana Pivots\Circana Pivot.xlsx"  # Sharepoint path
 
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
 
+        start_time = time.time()
+        timer_thread = threading.Thread(target=stopwatch, daemon=True)
+        timer_thread.start()
+        
         print(f"Opening workbook: {file_path}")
         wb = excel.Workbooks.Open(file_path, UpdateLinks=0, ReadOnly=False)
 
@@ -198,10 +203,8 @@ def automate_excel_process():
 if __name__ == "__main__":
     prevent_sleep()
     esc_thread = threading.Thread(target=listen_for_escape, daemon=True)
-    timer_thread = threading.Thread(target=stopwatch, daemon=True)
-
+    
     esc_thread.start()
-    timer_thread.start()
 
     automate_excel_process()
     
