@@ -36,7 +36,11 @@ class CircanaPivotGUI:
         root.geometry(f"{width}x{height}+{x}+{y}")
         
         root.resizable(False, False)
-        root.iconbitmap(r"C:\AUT\nestle-reports-automation\icon.ico")
+        icon_path = os.path.join(os.path.dirname(__file__), "icon.ico")
+        try:
+            root.iconbitmap(icon_path)
+        except Exception:
+            pass
         
         self.create_file_browse_frame()
         self.create_schdule_frame()
