@@ -22,18 +22,11 @@ def prevent_sleep():
 def allow_sleep():
     ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
 
-# Setup error logging
-timestamp = datetime.now().strftime('%Y%m%d_%H%M')
-error_filename = f"circana_errors_{timestamp}.log"
 
-logging.basicConfig(
-    filename=error_filename,
-    level=logging.ERROR,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 
 stop_requested = False
 start_time = None
+error_filename = None
 
 def log_error(msg):
     logging.error(msg)
@@ -65,8 +58,19 @@ def stopwatch():
 
 
 # Main function to automate Excel process
-def automate_excel_process():
+def automate_excel_process(file_path):
     global stop_requested
+    # Setup error logging
+    
+    global error_filename
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M')
+    error_filename = f"circana_errors_{timestamp}.log"
+
+    logging.basicConfig(
+        filename=error_filename,
+        level=logging.ERROR,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
     try:
         pythoncom.CoInitialize()
 
@@ -82,7 +86,7 @@ def automate_excel_process():
         excel.AskToUpdateLinks = False
         excel.EnableEvents = False
 
-        file_path = r"C:\Users\chg\OneDrive\NESTLE\Circana Pivot.xlsx" # local path to the file
+        #file_path = r"C:\Users\chg\OneDrive\NESTLE\Circana Pivot.xlsx" # local path to the file
         # file_path = r"C:\Users\NZShallaZu\NESTLE\Commercial Development - Documents\General\03 Shopper Centricity\Circana\Circana Pivots\Circana Pivot.xlsx"  # Sharepoint path
 
         if not os.path.exists(file_path):
@@ -176,7 +180,7 @@ def automate_excel_process():
         print("✅ Workbook saved and closed.")
 
     except KeyboardInterrupt:
-        print("🚪 Process interrupted by user.")
+        #print("🚪 Process interrupted by user.")
         log_error("Process interrupted by ESC key.")
         try:
             wb.Close(SaveChanges=False)
@@ -190,6 +194,8 @@ def automate_excel_process():
             excel.Application.Quit()
         except:
             pass
+        import gc
+        gc.collect()
         stop_requested = True  # Force timer and ESC thread to stop
         allow_sleep()  # Let the computer sleep again
 

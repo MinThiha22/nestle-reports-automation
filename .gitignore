@@ -3,4 +3,9 @@
 
 # virtual and build
 virtual/
-build/
+
+# error file
+*.log
+
+#python file
+__pycache__
