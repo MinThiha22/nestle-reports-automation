@@ -44,7 +44,7 @@ class CircanaPivotGUI:
         
         self.create_file_browse_frame()
         self.create_schdule_frame()
-        tk.Label(root, text="--OR--").pack(pady=5)
+        tk.Label(root, text="---OR---").pack(pady=5)
         self.start_now_frame()
         self.output_widgets()
         
