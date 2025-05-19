@@ -36,11 +36,11 @@ class CircanaPivotGUI:
         root.geometry(f"{width}x{height}+{x}+{y}")
         
         root.resizable(False, False)
-        icon_path = os.path.join(os.path.dirname(__file__), "icon.ico")
-        try:
-            root.iconbitmap(icon_path)
-        except Exception:
-            pass
+        if hasattr(sys, '_MEIPASS'):
+            icon_path = os.path.join(sys._MEIPASS, 'icon.ico')
+        else:
+            icon_path = 'icon.ico'
+        root.iconbitmap(icon_path)
         
         self.create_file_browse_frame()
         self.create_schdule_frame()
