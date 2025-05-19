@@ -1,0 +1,168 @@
+('C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+ 'Test\\dist\\automate-timer.exe',
+ True,
+ False,
+ False,
+ ['C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana Test\\icon.ico'],
+ versioninfo.VSVersionInfo(ffi=versioninfo.FixedFileInfo(filevers=(1, 0, 0, 0), prodvers=(1, 0, 0, 0), mask=0x3f, flags=0x0, OS=0x40004, fileType=1, subtype=0x0, date=(0, 0)), kids=[versioninfo.StringFileInfo([versioninfo.StringTable('040904B0', [versioninfo.StringStruct('CompanyName', 'Chris Hidalgo'), versioninfo.StringStruct('FileDescription', 'Excel Circana Pivot Automation'), versioninfo.StringStruct('FileVersion', '1.0.0.0'), versioninfo.StringStruct('InternalName', 'excel_refresh'), versioninfo.StringStruct('LegalCopyright', '© 2025 Chris Hidalgo'), versioninfo.StringStruct('OriginalFilename', 'excel_refresh.exe'), versioninfo.StringStruct('ProductName', 'Excel Refresh Tool'), versioninfo.StringStruct('ProductVersion', '1.0.0.0')])]), versioninfo.VarFileInfo([versioninfo.VarStruct('Translation', [1033, 1200])])]),
+ False,
+ False,
+ b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<assembly xmlns='
+ b'"urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">\n  <trustInfo x'
+ b'mlns="urn:schemas-microsoft-com:asm.v3">\n    <security>\n      <requested'
+ b'Privileges>\n        <requestedExecutionLevel level="asInvoker" uiAccess='
+ b'"false"/>\n      </requestedPrivileges>\n    </security>\n  </trustInfo>\n  '
+ b'<compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">\n    <'
+ b'application>\n      <supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f'
+ b'0}"/>\n      <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>\n '
+ b'     <supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}"/>\n      <s'
+ b'upportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}"/>\n      <supporte'
+ b'dOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>\n    </application>\n  <'
+ b'/compatibility>\n  <application xmlns="urn:schemas-microsoft-com:asm.v3">'
+ b'\n    <windowsSettings>\n      <longPathAware xmlns="http://schemas.micros'
+ b'oft.com/SMI/2016/WindowsSettings">true</longPathAware>\n    </windowsSett'
+ b'ings>\n  </application>\n  <dependency>\n    <dependentAssembly>\n      <ass'
+ b'emblyIdentity type="win32" name="Microsoft.Windows.Common-Controls" version='
+ b'"6.0.0.0" processorArchitecture="*" publicKeyToken="6595b64144ccf1df" langua'
+ b'ge="*"/>\n    </dependentAssembly>\n  </dependency>\n</assembly>',
+ True,
+ False,
+ None,
+ None,
+ None,
+ 'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+ 'Test\\build\\automate-timer\\automate-timer.pkg',
+ [('pyi-contents-directory _internal', '', 'OPTION'),
+  ('PYZ-00.pyz',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\build\\automate-timer\\PYZ-00.pyz',
+   'PYZ'),
+  ('struct',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\build\\automate-timer\\localpycs\\struct.pyc',
+   'PYMODULE'),
+  ('pyimod01_archive',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\build\\automate-timer\\localpycs\\pyimod01_archive.pyc',
+   'PYMODULE'),
+  ('pyimod02_importers',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\build\\automate-timer\\localpycs\\pyimod02_importers.pyc',
+   'PYMODULE'),
+  ('pyimod03_ctypes',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\build\\automate-timer\\localpycs\\pyimod03_ctypes.pyc',
+   'PYMODULE'),
+  ('pyimod04_pywin32',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\build\\automate-timer\\localpycs\\pyimod04_pywin32.pyc',
+   'PYMODULE'),
+  ('pyiboot01_bootstrap',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\CircanaPivot\\Lib\\site-packages\\PyInstaller\\loader\\pyiboot01_bootstrap.py',
+   'PYSOURCE'),
+  ('pyi_rth_inspect',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\CircanaPivot\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_inspect.py',
+   'PYSOURCE'),
+  ('pyi_rth_pythoncom',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\CircanaPivot\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\rthooks\\pyi_rth_pythoncom.py',
+   'PYSOURCE'),
+  ('pyi_rth_pywintypes',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\CircanaPivot\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\rthooks\\pyi_rth_pywintypes.py',
+   'PYSOURCE'),
+  ('automate-timer',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana Test\\automate-timer.py',
+   'PYSOURCE'),
+  ('python313.dll',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\python313.dll',
+   'BINARY'),
+  ('pywin32_system32\\pythoncom313.dll',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\CircanaPivot\\Lib\\site-packages\\pywin32_system32\\pythoncom313.dll',
+   'BINARY'),
+  ('pywin32_system32\\pywintypes313.dll',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\CircanaPivot\\Lib\\site-packages\\pywin32_system32\\pywintypes313.dll',
+   'BINARY'),
+  ('unicodedata.pyd',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\unicodedata.pyd',
+   'EXTENSION'),
+  ('_decimal.pyd',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_decimal.pyd',
+   'EXTENSION'),
+  ('_hashlib.pyd',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_hashlib.pyd',
+   'EXTENSION'),
+  ('select.pyd',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\select.pyd',
+   'EXTENSION'),
+  ('_socket.pyd',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_socket.pyd',
+   'EXTENSION'),
+  ('_lzma.pyd',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_lzma.pyd',
+   'EXTENSION'),
+  ('_bz2.pyd',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_bz2.pyd',
+   'EXTENSION'),
+  ('_ctypes.pyd',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_ctypes.pyd',
+   'EXTENSION'),
+  ('_wmi.pyd',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_wmi.pyd',
+   'EXTENSION'),
+  ('_queue.pyd',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_queue.pyd',
+   'EXTENSION'),
+  ('win32\\_win32sysloader.pyd',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\CircanaPivot\\Lib\\site-packages\\win32\\_win32sysloader.pyd',
+   'EXTENSION'),
+  ('win32\\win32api.pyd',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\CircanaPivot\\Lib\\site-packages\\win32\\win32api.pyd',
+   'EXTENSION'),
+  ('Pythonwin\\win32ui.pyd',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\CircanaPivot\\Lib\\site-packages\\Pythonwin\\win32ui.pyd',
+   'EXTENSION'),
+  ('win32\\win32event.pyd',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\CircanaPivot\\Lib\\site-packages\\win32\\win32event.pyd',
+   'EXTENSION'),
+  ('win32\\win32trace.pyd',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\CircanaPivot\\Lib\\site-packages\\win32\\win32trace.pyd',
+   'EXTENSION'),
+  ('VCRUNTIME140.dll',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\VCRUNTIME140.dll',
+   'BINARY'),
+  ('VCRUNTIME140_1.dll',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\VCRUNTIME140_1.dll',
+   'BINARY'),
+  ('libcrypto-3.dll',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\libcrypto-3.dll',
+   'BINARY'),
+  ('libffi-8.dll',
+   'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\libffi-8.dll',
+   'BINARY'),
+  ('Pythonwin\\mfc140u.dll',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\CircanaPivot\\Lib\\site-packages\\Pythonwin\\mfc140u.dll',
+   'BINARY'),
+  ('base_library.zip',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\build\\automate-timer\\base_library.zip',
+   'DATA')],
+ [],
+ False,
+ False,
+ 1747267161,
+ [('run.exe',
+   'C:\\Users\\chg\\Desktop\\NESTLE AUTOMA\\Circana '
+   'Test\\CircanaPivot\\Lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit-intel\\run.exe',
+   'EXECUTABLE')],
+ 'C:\\Users\\chg\\AppData\\Local\\Programs\\Python\\Python313\\python313.dll')
