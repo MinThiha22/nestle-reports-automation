@@ -8,6 +8,7 @@ import keyboard
 from datetime import datetime
 import ctypes
 import sys
+import gc
 
 # Prevent sleep (ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
 ES_CONTINUOUS = 0x80000000
@@ -21,8 +22,6 @@ def prevent_sleep():
 
 def allow_sleep():
     ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
-
-
 
 stop_requested = False
 start_time = None
@@ -194,7 +193,6 @@ def automate_excel_process(file_path):
             excel.Application.Quit()
         except:
             pass
-        import gc
         gc.collect()
         stop_requested = True  # Force timer and ESC thread to stop
         allow_sleep()  # Let the computer sleep again

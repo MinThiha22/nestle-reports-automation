@@ -5,7 +5,7 @@ from tkcalendar import DateEntry
 from tkinter import ttk
 import threading
 import time
-from CircanaPivot import automate_excel_process, prevent_sleep, allow_sleep, error_filename
+from CircanaPivot import automate_excel_process, prevent_sleep, allow_sleep
 import CircanaPivot
 import logging
 import os
@@ -26,6 +26,7 @@ class TextRedirector(object):
 
 class CircanaPivotGUI:
     def __init__(self, root):
+        self.stopped = False
         self.root = root
         root.title("Circana Pivot Automation")
         # Center the window on the screen
@@ -71,6 +72,9 @@ class CircanaPivotGUI:
         )
         if file_path:
             self.file_path_var.set(file_path)
+            self.status_var.set("File selected")
+            self.start_button.config(state=tk.NORMAL)
+            self.save_schedule_button.config(state=tk.NORMAL)
     
     def create_schdule_frame(self):
         schedule_frame = tk.Frame(self.root)
@@ -105,6 +109,7 @@ class CircanaPivotGUI:
         # Save button to store date and time
         self.save_schedule_button = tk.Button(schedule_frame, text="Save Schedule", command=self.save_schedule)
         self.save_schedule_button.pack(side=tk.LEFT, padx=(10, 0))
+        self.save_schedule_button.config(state=tk.DISABLED)
 
         # Label to display saved schedule time
         self.saved_schedule_label = tk.Label(self.root, text="No schedule set.", fg="green")
@@ -122,15 +127,27 @@ class CircanaPivotGUI:
         selected_hour = self.hour_var.get()
         selected_minute = self.minute_var.get()
         schedule_str = f"{selected_date} {selected_hour}:{selected_minute}"
+        
 
         if tk.messagebox.askyesno(
             "Confirm Schedule",
             f"Do you want to save this schedule?\n\n{schedule_str}"
         ):
-            self.saved_schedule_label.config(
+            
+            is_valid = self.schedule_automation(selected_date, selected_hour, selected_minute)
+            if is_valid:
+                self.cancel_schedule_button.config(state=tk.NORMAL)
+                self.start_button.config(state=tk.DISABLED)
+                tk.messagebox.showinfo("Info", "Schedule saved successfully.")
+                self.status_var.set("Waiting for scheduled time...")
+                self.saved_schedule_label.config(
                 text=f"Schedule saved. Schedule refresh will start at {schedule_str}")
-            self.schedule_automation(selected_date, selected_hour, selected_minute)
-            self.cancel_schedule_button.config(state=tk.NORMAL)
+            
+                if tk.messagebox.askyesno(
+                    "Minimise to Background",
+                    "Do you want to minimise the app and run automation in the background until the scheduled time?"
+                ):
+                    self.root.iconify()
         else:
             self.saved_schedule_label.config(text="Schedule not saved.")
             self.saved_schedule_label.config(fg="red")
@@ -150,8 +167,10 @@ class CircanaPivotGUI:
             thread.start()
             self.saved_schedule_label.config(text=f"Scheduled automation for {schedule_time}")
             self.saved_schedule_label.config(fg="green")
+            return True
         else:
             tk.messagebox.showerror("Error", "Scheduled time is in the past.")
+            return False
         
     def cancel_schedule(self):
         # Cancel any existing scheduled automation
@@ -161,7 +180,8 @@ class CircanaPivotGUI:
                 self.saved_schedule_label.config(text="Scheduled automation cancelled.")
                 self.saved_schedule_label.config(fg="red")
                 self.cancel_schedule_button.config(state=tk.DISABLED)
-                tk.messagebox.showinfo("Info", "Scheduled automation cancelled.")
+                tk.messagebox.showinfo("Info", "Scheduled cancelled.")
+                self.status_var.set("Scheduled cancelled")
                 return
         tk.messagebox.showinfo("Info", "No scheduled automation to cancel.")
     
@@ -171,17 +191,31 @@ class CircanaPivotGUI:
         
         self.start_button = tk.Button(start_now_frame, text="Start Automation Now", command=self.start_automation)
         self.start_button.pack(side=tk.LEFT, padx=(0, 5))
+        self.start_button.config(state=tk.DISABLED)
         
         self.stop_button = tk.Button(start_now_frame, text="Stop Automation", command=self.stop_automation)
         self.stop_button.pack(side=tk.RIGHT, padx=(5, 0))
+        self.stop_button.config(state=tk.DISABLED)
     
     def start_automation(self):
         CircanaPivot.stop_requested = False
+        self.stopped = False
         if not self.file_path_var.get():
             tk.messagebox.showerror("Error", "Please select a file.")
             return
         self.status_var.set("Running...")
+        self.timer_var.set("⏱️ Timer: 00:00")
+        self.file_path_entry.config(state=tk.DISABLED)
+        self.browse_button.config(state=tk.DISABLED)
+        self.save_schedule_button.config(state=tk.DISABLED)
+        self.cancel_schedule_button.config(state=tk.DISABLED)
         self.start_button.config(state=tk.DISABLED)
+        self.stop_button.config(state=tk.NORMAL)
+        
+        self.date_entry.config(state=tk.DISABLED)
+        self.hour_combo.config(state=tk.DISABLED)
+        self.minute_combo.config(state=tk.DISABLED)
+        
         self.start_time = time.time()
         self.timer_running = True
         self.update_timer()
@@ -192,16 +226,36 @@ class CircanaPivotGUI:
         try:
             prevent_sleep()
             automate_excel_process(self.file_path_var.get())
-            self.status_var.set("✅ Done!")
+            if self.stopped:
+                self.status_var.set("🎯 Ready")
+            else:
+                self.status_var.set("✅ Success!")
         except Exception as e:
             self.status_var.set(f"❌ Error: {e}")
         finally:
             allow_sleep()
             logging.shutdown()
-            self.timer_running = False
-            if os.path.exists(error_filename) and os.path.getsize(error_filename) == 0:
+            print(f"Log file: {CircanaPivot.error_filename}")
+            error_filename = CircanaPivot.error_filename
+            if (os.path.exists(error_filename) and os.path.getsize(error_filename) == 0) or self.stopped:
                 os.remove(error_filename)
+            else:
+                print(f"📝 Errors logged in: {error_filename}")
+            
+            self.file_path_entry.config(state=tk.NORMAL)
+            self.browse_button.config(state=tk.NORMAL)
+            self.save_schedule_button.config(state=tk.NORMAL)
+            
             self.start_button.config(state=tk.NORMAL)
+            self.stop_button.config(state=tk.DISABLED)
+            self.date_entry.config(state=tk.NORMAL)
+            self.hour_combo.config(state=tk.NORMAL)
+            self.minute_combo.config(state=tk.NORMAL)
+            
+            self.console.configure(state='normal')
+            self.console.delete(1.0, tk.END)
+            self.console.configure(state='disabled')
+            self.timer_running = False
         
     def stop_automation(self):
         if self.start_time is None:
@@ -209,20 +263,37 @@ class CircanaPivotGUI:
             return
         if tk.messagebox.askyesno("Confirm Stop", "Are you sure you want to stop the automation?"):
             CircanaPivot.stop_requested = True
+            self.stopped = True
             print("Automation stop by user...")
-            self.status_var.set("Stopped")
+            self.status_var.set("Stopping...")
+            self.file_path_entry.config(state=tk.NORMAL)
+            self.browse_button.config(state=tk.NORMAL)
+            self.save_schedule_button.config(state=tk.NORMAL)
+            
             self.start_button.config(state=tk.NORMAL)
+            self.stop_button.config(state=tk.DISABLED)
+            self.date_entry.config(state=tk.NORMAL)
+            self.hour_combo.config(state=tk.NORMAL)
+            self.minute_combo.config(state=tk.NORMAL)
+            
             self.timer_running = False
             self.timer_var.set("⏱️ Timer: 00:00")
             self.start_time = None
-            self.console.configure(state='normal')
-            self.console.delete(1.0, tk.END)
-            self.console.configure(state='disabled')
+            
         
     def output_widgets(self):
         self.status_var = tk.StringVar()
-        self.status_var.set("Ready")
-        self.status_label = tk.Label(self.root, textvariable=self.status_var, font=("Arial", 12))
+        self.status_var.set("🎯 Ready")
+        self.status_label = tk.Label(
+            self.root,
+            textvariable=self.status_var,
+            font=("Segoe UI Emoji", 14, "bold"),
+            relief="solid",
+            fg="green",
+            borderwidth=1,
+            padx=10,
+            pady=5
+        )
         self.status_label.pack(pady=5)
         
         self.timer_var = tk.StringVar()
@@ -233,7 +304,8 @@ class CircanaPivotGUI:
         self.timer_label = tk.Label(root, textvariable=self.timer_var, font=("Arial", 12))
         self.timer_label.pack(pady=5)
 
-        self.console = scrolledtext.ScrolledText(root, height=15, width=70, state='disabled', font=("Consolas", 9))
+        self.console = scrolledtext.ScrolledText(root, height=15, width=70, state='disabled', font=("Consolas", 9), bg="black", fg="white")
+        self.console.tag_configure("error", foreground="red")
         self.console.pack(pady=5)
         
         # Redirect stdout to the console
