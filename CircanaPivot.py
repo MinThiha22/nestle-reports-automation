@@ -8,7 +8,6 @@ import keyboard
 from datetime import datetime
 import ctypes
 import sys
-import gc
 
 # Prevent sleep (ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
 ES_CONTINUOUS = 0x80000000
@@ -23,9 +22,18 @@ def prevent_sleep():
 def allow_sleep():
     ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
 
+# Setup error logging
+timestamp = datetime.now().strftime('%Y%m%d_%H%M')
+error_filename = f"circana_errors_{timestamp}.log"
+
+logging.basicConfig(
+    filename=error_filename,
+    level=logging.ERROR,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
 stop_requested = False
 start_time = None
-error_filename = None
 
 def log_error(msg):
     logging.error(msg)
@@ -59,17 +67,6 @@ def stopwatch():
 # Main function to automate Excel process
 def automate_excel_process(file_path):
     global stop_requested
-    # Setup error logging
-    
-    global error_filename
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M')
-    error_filename = f"circana_errors_{timestamp}.log"
-
-    logging.basicConfig(
-        filename=error_filename,
-        level=logging.ERROR,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
     try:
         pythoncom.CoInitialize()
 
@@ -85,7 +82,7 @@ def automate_excel_process(file_path):
         excel.AskToUpdateLinks = False
         excel.EnableEvents = False
 
-        #file_path = r"C:\Users\chg\OneDrive\NESTLE\Circana Pivot.xlsx" # local path to the file
+        # file_path = r"C:\Users\chg\OneDrive\NESTLE\Circana Pivot.xlsx" # local path to the file
         # file_path = r"C:\Users\NZShallaZu\NESTLE\Commercial Development - Documents\General\03 Shopper Centricity\Circana\Circana Pivots\Circana Pivot.xlsx"  # Sharepoint path
 
         if not os.path.exists(file_path):
@@ -147,19 +144,33 @@ def automate_excel_process(file_path):
 
         print("\n== 3. Updating Nespresso Pivots ==")
         try:
-            # Refresh all Power Queries + OLAP data model + Pivots
-            #wb.RefreshAll() alternative to refresh all connections again
-
-            # recalculate and display update values in pivot tables
             print("Refreshing Nespresso pivot tables...") 
-            excel.CalculateUntilAsyncQueriesDone()
-        except Exception as e:
-            log_error(f"Nespresso Pivots error: {e}")
-            print("❌ Nespresso Pivots failed (logged)")
+            pivot_sheet = wb.Sheets("Nespresso")
+            pivot_table = pivot_sheet.PivotTables("PivotTable1")
+
+            try:
+                # Try to refresh only the pivot table first
+                print("Refreshing OALP pivot by refreshing queries...")
+                pivot_table.RefreshTable()
+                excel.CalculateUntilAsyncQueriesDone()
+                print("✅ Nespresso Pivot Table refreshed successfully.")
+
+            except Exception as e:
+                log_error(f"Nespresso Pivot Table refresh error: {e}")
+                print("❌ PivotTable1 refresh failed. Trying full workbook refresh...")
+
+                try:
+                    # Fallback: refresh entire workbook
+                    wb.RefreshAll()
+                    excel.CalculateUntilAsyncQueriesDone()
+                    print("✅ Workbook refreshed successfully as fallback.")
+                except Exception as e2:
+                    log_error(f"Workbook refresh error (fallback): {e2}")
+                    print("❌ Workbook refresh failed (logged)")
 
         except Exception as e:
-            log_error(f"Nespresso sheet error: {e}")
-            print("❌ Error accessing Nespresso pivots (logged)")
+            log_error(f"Nespresso pivot section error: {e}")
+            print("❌ Error accessing Nespresso pivot section (logged)")
 
         print("\n\n== Finalizing & Saving ==")
         try:
@@ -179,7 +190,7 @@ def automate_excel_process(file_path):
         print("✅ Workbook saved and closed.")
 
     except KeyboardInterrupt:
-        #print("🚪 Process interrupted by user.")
+        print("🚪 Process interrupted by user.")
         log_error("Process interrupted by ESC key.")
         try:
             wb.Close(SaveChanges=False)
@@ -193,7 +204,6 @@ def automate_excel_process(file_path):
             excel.Application.Quit()
         except:
             pass
-        gc.collect()
         stop_requested = True  # Force timer and ESC thread to stop
         allow_sleep()  # Let the computer sleep again
 
@@ -216,3 +226,5 @@ if __name__ == "__main__":
         print("🧹 No errors occurred. Log file deleted.")
     else:
         print(f"⚠️ Errors were logged to: {error_filename}")
+        
+   
