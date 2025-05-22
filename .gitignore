@@ -1,0 +1,11 @@
+# macOS system files
+.DS_Store
+
+# virtual and build
+virtual/
+
+# error file
+*.log
+
+#python file
+__pycache__
