@@ -97,24 +97,18 @@ def automate_excel_process(file_path):
         wb = excel.Workbooks.Open(file_path, UpdateLinks=0, ReadOnly=False)
         sheet = wb.Sheets("Actuals") # select sheet Actuals
         
-        print("\n\n== 0. Refreshing Connections ==")
-
-        for conn in wb.Connections:
+        print("\n\n== 1. Refreshing Pivot Tables ==\n")
+        try:
+            pivot = sheet.PivotTables("PivotTable1")
+            pivot.PivotCache().Refresh()
+            excel.CalculateUntilAsyncQueriesDone()
+            print("\nPivot tables refreshed.")
             if stop_requested:
                 raise KeyboardInterrupt()
-            try:
-                print(f"Refreshing connection: {conn.Name}")
-                # conn.Refresh()
-                time.sleep(2)
-            except Exception as e:
-                log_error(f"Error refreshing connection '{conn.Name}': {str(e)}")
-        
-        print("\n\n== 1. Refreshing Pivot Tables ==\n")
-        excel.CalculateUntilAsyncQueriesDone()
-        print("\nPivot tables refreshed.")
-        if stop_requested:
-            raise KeyboardInterrupt()
-
+        except Exception as e:
+            log_error(f"Pivot table refresh error: {e}")
+            print(f"❌ Error refreshing pivot table (logged): {e}")
+            
         print("\n\n== 2. Updating Weeks Date ==")
         try:
             # already selected the sheet Actuals
