@@ -1,3 +1,4 @@
+import win32com
 import win32com.client as win32
 import os
 import time
@@ -5,10 +6,14 @@ import logging
 import pythoncom
 import threading
 import keyboard
-from datetime import datetime
+from datetime import datetime, timedelta
 import ctypes
 import sys
 import gc
+
+# Import the filtering function from the other file
+from NPDFilterProducts import filter_products_by_week_values_v2, excel_date_to_datetime
+
 
 # Prevent sleep (ES_CONTINUOUS | ES_SYSTEM_REQUIRED)
 ES_CONTINUOUS = 0x80000000
@@ -70,7 +75,11 @@ def stopwatch():
 # Main function to automate Excel process |
 # =========================================
 
+file_path = r"C:\Users\chg\OneDrive\NESTLE\NPD.xlsx" # local path to the file
+#file_path = r"C:\Users\NZShallaZu\NESTLE\Commercial Development - Documents\General\03 Shopper Centricity\Circana\Circana Pivots\Circana Pivot.xlsx"  # Sharepoint path
 def automate_excel_process(file_path):
+    today = datetime.now().strftime('%Y-%m-%d')
+    print(f"toadayDate: {today}")
     global stop_requested
     try:
         pythoncom.CoInitialize()
@@ -87,8 +96,6 @@ def automate_excel_process(file_path):
         excel.AskToUpdateLinks = False
         excel.EnableEvents = False
 
-        # file_path = r"C:\Users\chg\OneDrive\NESTLE\NPD.xlsx" # local path to the file
-        #file_path = r"C:\Users\NZShallaZu\NESTLE\Commercial Development - Documents\General\03 Shopper Centricity\Circana\Circana Pivots\Circana Pivot.xlsx"  # Sharepoint path
 
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
@@ -96,10 +103,10 @@ def automate_excel_process(file_path):
         print(f"Opening workbook: {file_path}")
         wb = excel.Workbooks.Open(file_path, UpdateLinks=0, ReadOnly=False)
         sheet = wb.Sheets("Actuals") # select sheet Actuals
-        
+        pivot = sheet.PivotTables("PivotTable1")
+        print("Workbook opened successfully.")
         print("\n\n== 1. Refreshing Pivot Tables ==\n")
         try:
-            pivot = sheet.PivotTables("PivotTable1")
             pivot.PivotCache().Refresh()
             excel.CalculateUntilAsyncQueriesDone()
             print("\nPivot tables refreshed.")
@@ -111,18 +118,14 @@ def automate_excel_process(file_path):
             
         print("\n\n== 2. Updating Weeks Date ==")
         try:
-            # already selected the sheet Actuals
-            pivot = sheet.PivotTables("PivotTable1")
-            
             # Fields that may have filters or slicers applied
-            
+            print("\nClearing filters on slicers and fields...")
             slicer_fields = [
-                "[TotalMarket].[Manufacturer Value].[Manufacturer Value]",
                 "[TotalMarket].[Business Unit Value].[Business Unit Value]",
                 "[TotalMarket].[Brand Value].[Brand Value]",
                 "[TotalMarket].[Geography].[Geography]",
-                "[TotalMarket].[Product].[Product]",
-                "[Table1].[Weeks].[Weeks]",
+                "[TotalMarket].[Product].[Product]", # we clear to check new products
+                "[Table1].[Weeks].[Weeks]", # select all weeks
             ]
 
             # Clear filters for each slicer-related field
@@ -133,21 +136,17 @@ def automate_excel_process(file_path):
                     print(f"Cleared filters on {field_name}")
                 except Exception as e:
                     print(f"Warning: Could not clear filter on {field_name}: {e}")
-
+        
             # Now handle the Weeks field
-            
+            print("\n\nSelecting all dates on Weeks field...")
             pivot_field = pivot.PivotFields("[Table1].[Weeks].[Weeks]")
-            print("\n\nAll filters cleared.")
+            print("\nAll filters cleared.")
             
             # select all items available
             items = [item.Name for item in pivot_field.PivotItems()]
             print("📅 Dates Founds")
             # print all the items founds (optional) 
-            count = 0
-            for name in items:
-                # print(f"  - {name}")
-                count += 1
-            print(f"  - {count} items found")
+            print (f"  - {len(items)} items found in Weeks field:")
 
             # filter and Keep all non-blank values
             non_blank_items = [
@@ -161,7 +160,16 @@ def automate_excel_process(file_path):
             pivot_field.VisibleItemsList = non_blank_items
             
             print(f"✅ Dates updated successfully.")
-
+            print("\n\n Selecting only new SKUs...whiting the last 13 weeks\n")
+            
+            # select file NPDFilterProducts.py
+            # Call the product filtering function
+            filter_products_by_week_values_v2(
+                sheet_name=sheet,
+                pivot_table_name=pivot
+            )
+            print("✅ Products filtered successfully.")
+            
         except Exception as e:
             log_error(f"OLAP pivot interaction failed: {e}")
             print(f"❌ OLAP pivot interaction failed (logged): {e}")
@@ -234,7 +242,7 @@ if __name__ == "__main__":
     esc_thread.start()
     timer_thread.start()
 
-    automate_excel_process()
+    automate_excel_process(file_path)
     
     # Ensure logs are flushed before checking file size
     logging.shutdown()

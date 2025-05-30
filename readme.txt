@@ -1,3 +1,3 @@
 pip install pyinstaller
 
-pyinstaller --onefile --windowed --add-data "NPD.py;." --version-file=version.txt --icon=icon.ico NPD_GUI.py
+pyinstaller --onefile --windowed --version-file=version.txt --icon=icon.ico --hidden-import win32timezone NPD_GUI.py
