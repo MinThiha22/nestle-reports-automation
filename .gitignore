@@ -9,3 +9,6 @@ virtual/
 
 #python file
 __pycache__
+
+#env file
+.env
