@@ -22,7 +22,7 @@ def click_button(driver, id):
 
 def login_unify():
   user_data_dir = os.path.expanduser("~/Library/Application Support/Microsoft Edge")
-  profile_dir = "Default"  # or "Profile 1", etc.
+  profile_dir = "Default"
   edge_options = Options()
   edge_options.add_argument(f"--user-data-dir={user_data_dir}")
   edge_options.add_argument(f"--profile-directory={profile_dir}")
