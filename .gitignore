@@ -12,3 +12,10 @@ __pycache__
 
 #env file
 .env
+
+#edge_profile
+edge_profile/
+user_data/
+
+#vs code files
+.vscode

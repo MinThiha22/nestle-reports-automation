@@ -7,4 +7,4 @@ driver = webdriver.Edge(service=service)
 
 driver.get("https://google.com")
 time.sleep(2)
-driver.quit()
+driver.get('about:blank')
