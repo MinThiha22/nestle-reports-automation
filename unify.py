@@ -92,7 +92,6 @@ def locate_and_action(page, selector, has_text=None, action="Click", option=None
     elif action == "Check":
       element.check()
     elif action == "Select":
-      
       element.select_option(option)
     else:
       print(f"Unsupported Action")
@@ -100,6 +99,12 @@ def locate_and_action(page, selector, has_text=None, action="Click", option=None
     return element
   except Exception as e:
     print(f"Error during {action} {description}: {e}")
+
+def unify_automation():
+  with sync_playwright() as p:
+    page, context = login_unify(p)
+    automate_download(page)
+    return context
 
 if __name__ == "__main__":
   with sync_playwright() as p:
