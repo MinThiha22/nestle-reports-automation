@@ -46,7 +46,6 @@ def automate_download(page):
     export_flat_file(page, "Flat File - CD")
     export_flat_file(page, "Flat File - NWNI")
     export_flat_file(page, "Flat File - PSNI")
-    export_flat_file(page, "Flat File - PSNI")
     export_flat_file(page, "Flat File - FSSI")
     export_flat_file(page, "Flat File - Petrol CDNISI")
   except Exception as e:
