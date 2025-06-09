@@ -28,7 +28,7 @@ class UnifyGUI:
         self.root = root
         root.title("Unify Flat Files Download Automation")
         # Center the window on the screen
-        width = 600
+        width = 700
         height = 600
         x = (root.winfo_screenwidth() // 2) - (width // 2)
         y = (root.winfo_screenheight() // 2) - (height // 2)
