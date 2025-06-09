@@ -186,9 +186,6 @@ class UnifyGUI:
         except Exception as e:
             self.status_var.set(f"❌ Error: {e}")
         finally:
-            
-            self.file_path_entry.config(state=tk.NORMAL)
-            self.browse_button.config(state=tk.NORMAL)
             self.save_schedule_button.config(state=tk.NORMAL)
             
             self.start_button.config(state=tk.NORMAL)
@@ -209,7 +206,7 @@ class UnifyGUI:
         if tk.messagebox.askyesno("Confirm Stop", "Are you sure you want to stop the automation?"):
             print("Automation stop by user...")
             self.status_var.set("Stopping...")
-            self.context.close()
+            
             self.save_schedule_button.config(state=tk.NORMAL)
             self.start_button.config(state=tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
@@ -220,7 +217,7 @@ class UnifyGUI:
             self.timer_running = False
             self.timer_var.set("⏱️ Timer: 00:00")
             self.start_time = None
-            
+            self.context.close()
         
     def output_widgets(self):
         self.status_var = tk.StringVar()
