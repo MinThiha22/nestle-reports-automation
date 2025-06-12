@@ -1,0 +1,21 @@
+# macOS system files
+.DS_Store
+
+# virtual and build
+virtual/
+
+# error file
+*.log
+
+#python file
+__pycache__
+
+#env file
+.env
+
+#edge_profile
+edge_profile/
+user_data/
+
+#vs code files
+.vscode
