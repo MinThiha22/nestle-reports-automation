@@ -7,12 +7,12 @@ import threading
 import os
 import sys
 import time
-from Unify import unify_automation
+from unify import unify_automation, close_automation
 
 class TextRedirector(object):
     def __init__(self, widget):
         self.widget = widget
-        self.context = None
+        
 
     def write(self, s):
         self.widget.configure(state='normal')
@@ -27,6 +27,8 @@ class UnifyGUI:
     def __init__(self, root):
         self.root = root
         root.title("Unify Flat Files Download Automation")
+        self.context = None
+        self.playwright = None
         # Center the window on the screen
         width = 700
         height = 600
@@ -182,7 +184,7 @@ class UnifyGUI:
         
     def run_automation(self):
         try:
-            self.context =  unify_automation()
+            self.playwright, self.context =  unify_automation()
         except Exception as e:
             self.status_var.set(f"❌ Error: {e}")
         finally:
@@ -217,7 +219,9 @@ class UnifyGUI:
             self.timer_running = False
             self.timer_var.set("⏱️ Timer: 00:00")
             self.start_time = None
-            self.context.close()
+            close_automation(self.playwright, self.context)
+            self.playwright = None
+            self.context = None
         
     def output_widgets(self):
         self.status_var = tk.StringVar()
