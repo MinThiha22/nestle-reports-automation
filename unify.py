@@ -9,19 +9,11 @@ DOWNLOADS_PATH = os.path.join(os.path.expanduser("~"), "Downloads")
 def sanitise_filename(name):
   return re.sub(r'[\\/*?:"<>|]', "_", name)
 
-def login_unify(p):
+def login_unify(page):
   load_dotenv()
   username = os.getenv("UNIFY_USERNAME")
   password = os.getenv("UNIFY_PASSWORD")
   
-  context = p.chromium.launch_persistent_context(
-    user_data_dir="./edge_profile",
-    headless=False,
-    channel="msedge",
-    accept_downloads=True,
-    downloads_path=DOWNLOADS_PATH
-  )
-  page = context.pages[0]
   page.goto("https://unify.ap.iriworldwide.com/client1/index.html", wait_until="load")
   
   try:
@@ -41,7 +33,7 @@ def login_unify(p):
       print("Login successful. Reached landing page.")
     except PlaywrightTimeoutError:
         print("Login failed or took too long.")
-  return page, context
+
 
 def navigate_export(page):
   try:
@@ -128,25 +120,25 @@ def locate_and_action(page, selector, has_text=None, action="Click", option=None
 
 import time
 
-def wait_for_notification_download(page, noti_count=7, timeout_ms=10800000, check_interval=30):
-  print(f"🔔 Waiting for notification count to reach {noti_count} (timeout: {timeout_ms // 60000} min)")
-  noti_span = page.locator('a.fa-bell span.notification')
-  start = time.time()
+# def wait_for_notification_download(page, noti_count=7, timeout_ms=10800000, check_interval=30):
+#   print(f"🔔 Waiting for notification count to reach {noti_count} (timeout: {timeout_ms // 60000} min)")
+#   noti_span = page.locator('a.fa-bell span.notification')
+#   start = time.time()
 
-  while (time.time() - start) * 1000 < timeout_ms:
-    try:
-      noti_span.wait_for(state='attached', timeout=5000)
-      count_text = noti_span.inner_text().strip()
-      count = int(count_text) if count_text.isdigit() else 0
-      print(f"🔎 Current count: {count}")
-      if count == noti_count:
-        print("✅ Target count reached! Clicking notification.")
-        download_from_notifications(page)
-        return
-    except Exception as e:
-      print(f"⚠️ Error: {e}")
-    time.sleep(check_interval)
-  raise TimeoutError(f"⏰ Timeout: Notification count did not reach {noti_count} in time.")
+#   while (time.time() - start) * 1000 < timeout_ms:
+#     try:
+#       noti_span.wait_for(state='attached', timeout=5000)
+#       count_text = noti_span.inner_text().strip()
+#       count = int(count_text) if count_text.isdigit() else 0
+#       print(f"🔎 Current count: {count}")
+#       if count == noti_count:
+#         print("✅ Target count reached! Clicking notification.")
+#         download_from_notifications(page)
+#         return
+#     except Exception as e:
+#       print(f"⚠️ Error: {e}")
+#     time.sleep(check_interval)
+#   raise TimeoutError(f"⏰ Timeout: Notification count did not reach {noti_count} in time.")
 
 def get_notification_items(page):
   notifications = []
@@ -177,24 +169,38 @@ def get_notification_items(page):
             'file_name': file_name.strip(),
             'time_str': time_str.strip(),
           })
-
       except Exception as e:
         print(f"⚠️ Error parsing one notification: {e}")
         continue
-
-    # Take last 7 matching notifications
-    notifications = filtered_notifications[-7:]
-
+    # Take lastest 7 files
+    notifications = filtered_notifications[:7]
+    print("The following files will be downloaded...")
+    for noti in notifications:
+      print(f"{noti['file_name']}, {noti['time_str']}")
   except Exception as e:
     print(f"❌ Failed to fetch notification elements: {e}")
   return notifications
 
-def download_from_notifications(page): 
-  notifications = get_notification_items(page)
-  if not notifications:
-    print("❌ No notifications found")
-    return False
 
+def get_unique_filename(directory, filename):
+  name, ext = os.path.splitext(filename)
+  counter = 1
+  full_path = os.path.join(directory, filename)
+  while os.path.exists(full_path):
+    new_filename = f"{name} ({counter}){ext}"
+    full_path = os.path.join(directory, new_filename)
+    counter += 1
+  return full_path, counter
+
+def delete_previous_files(directory, filename):
+  full_path = os.path.join(directory, filename)
+  if os.path.exists(full_path):
+    os.remove(full_path)  # Delete existing file
+  return full_path
+
+def download_from_notifications(page, download_path): 
+  notifications = get_notification_items(page)
+  
   download_count = 0
   for noti in notifications:
     try:
@@ -202,25 +208,23 @@ def download_from_notifications(page):
         noti['element'].click()
       download = download_info.value
       safe_file_name = sanitise_filename(noti['file_name']) + ".xlsx"
-      download.save_as(os.path.join(DOWNLOADS_PATH, safe_file_name))
-      print(f"✅ Downloaded {safe_file_name}")
+      downloaded_file = delete_previous_files(download_path, safe_file_name)
+      download.save_as(downloaded_file)
+      print(f"✅ Downloaded {downloaded_file}")
       download_count += 1
-      
-      time.sleep(2)  
     except Exception as e:
       print(f"❌ Error downloading {noti['file_name']}: {e}")
       
   print(f"✅ Successfully download {download_count} flat files")
   return download_count > 0
 
-def cleanup_uuid_files():
+def cleanup_uuid_files(download_path):
   
-  uuid_pattern = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
+  uuid_pattern = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
   today = date.today()
   
-  for file in os.listdir(DOWNLOADS_PATH):
-    file_path = os.path.join(DOWNLOADS_PATH, file)
-      
+  for file in os.listdir(download_path):
+    file_path = os.path.join(download_path, file) 
     if os.path.isfile(file_path) and uuid_pattern.match(os.path.splitext(file)[0]):
       file_modified_time = datetime.fromtimestamp(os.path.getmtime(file_path)).date()
       if file_modified_time == today:
@@ -232,12 +236,23 @@ def cleanup_uuid_files():
       else:
         print(f"⏭️ Skipping {file} (not from today: {file_modified_time})")
 
-def unify_automation():
-  p = sync_playwright().start()     
-  page, context = login_unify(p)
-  #navigate_export(page)
-  time.sleep(10)
-  download_from_notifications(page)
+# Main Function
+def unify_automation(download_path):
+  p = sync_playwright().start()
+  context = p.chromium.launch_persistent_context(
+    user_data_dir="./edge_profile",
+    headless=False,
+    channel="msedge",
+    accept_downloads=True,
+    downloads_path=download_path
+  )
+  page = context.pages[0]     
+  login_unify(page)
+  navigate_export(page)
+  print("⏳ Waiting for exports to complete (~2.5 hours)...")
+  time.sleep(2.5 * 60 * 60)
+  download_from_notifications(page,download_path)
+  cleanup_uuid_files(download_path)
   return p, context
 
 def close_automation(p,context):
@@ -246,12 +261,12 @@ def close_automation(p,context):
   if context:
     context.close()
 
-if __name__ == "__main__":
-  with sync_playwright() as p:
-    page, context = login_unify(p)
-    #get_notification_items(page)
-    #navigate_export(page)
-    download_from_notifications(page)                   
-    input("Press Enter to exit and close browser...")
-    context.close()
+# if __name__ == "__main__":
+#   with sync_playwright() as p:
+#     page, context = login_unify(p)
+#     #get_notification_items(page)
+#     #navigate_export(page)
+#     get_notification_items(page)                
+#     input("Press Enter to exit and close browser...")
+#     context.close()
     

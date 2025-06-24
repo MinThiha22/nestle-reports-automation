@@ -29,6 +29,7 @@ class UnifyGUI:
         root.title("Unify Flat Files Download Automation")
         self.context = None
         self.playwright = None
+        self.stop = False
         # Center the window on the screen
         width = 700
         height = 600
@@ -43,11 +44,36 @@ class UnifyGUI:
             icon_path = 'icon.ico'
         root.iconbitmap(icon_path)
         
+        self.create_file_browse_frame()
         self.create_schdule_frame()
         tk.Label(root, text="---OR---").pack(pady=5)
         self.start_now_frame()
         self.output_widgets()
         self.bind_close_event()
+    
+    def create_file_browse_frame(self):
+        file_frame = tk.Frame(self.root)
+        file_frame.pack(pady=20)
+        
+        self.file_label = tk.Label(file_frame, text="Select Download Folder: ")
+        self.file_label.pack(side=tk.LEFT, padx=(0, 5))
+        
+        self.file_path_var = tk.StringVar()
+        self.file_path_entry = tk.Entry(file_frame, textvariable=self.file_path_var, width=45)
+        self.file_path_entry.pack(side=tk.LEFT, padx=(0, 5))
+
+        self.browse_button = tk.Button(file_frame, text="Browse", command=self.browse_file)
+        self.browse_button.pack(side=tk.RIGHT, padx=(5, 0))
+
+    def browse_file(self):
+        folder_path = filedialog.askdirectory(
+            title="Select Download Folder"
+        )
+        if folder_path:
+            self.file_path_var.set(folder_path)
+            self.status_var.set("Folder selected")
+            self.start_button.config(state=tk.NORMAL)
+            self.save_schedule_button.config(state=tk.NORMAL)
     
     def create_schdule_frame(self):
         schedule_frame = tk.Frame(self.root)
@@ -92,6 +118,9 @@ class UnifyGUI:
         self.cancel_schedule_button.config(state=tk.DISABLED)
 
     def save_schedule(self):
+        if not self.file_path_var.get():
+            tk.messagebox.showerror("Error", "Please select a download folder.")
+            return
         selected_date = self.date_entry.get_date().strftime("%Y-%m-%d")
         selected_hour = self.hour_var.get()
         selected_minute = self.minute_var.get()
@@ -165,6 +194,10 @@ class UnifyGUI:
         self.stop_button.config(state=tk.DISABLED)
     
     def start_automation(self):
+        if not self.file_path_var.get():
+            tk.messagebox.showerror("Error", "Please select a download folder.")
+            return
+        self.stopped = False
         self.status_var.set("Running...")
         self.timer_var.set("⏱️ Timer: 00:00")
         self.save_schedule_button.config(state=tk.DISABLED)
@@ -184,12 +217,16 @@ class UnifyGUI:
         
     def run_automation(self):
         try:
-            self.playwright, self.context =  unify_automation()
+            self.playwright, self.context =  unify_automation(self.file_path_var.get())
+            if self.stopped:
+                self.status_var.set("🎯 Ready")
+            else:
+                self.status_var.set("✅ Success! Completed")
         except Exception as e:
             self.status_var.set(f"❌ Error: {e}")
         finally:
             self.save_schedule_button.config(state=tk.NORMAL)
-            
+
             self.start_button.config(state=tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
             self.date_entry.config(state=tk.NORMAL)
@@ -208,7 +245,7 @@ class UnifyGUI:
         if tk.messagebox.askyesno("Confirm Stop", "Are you sure you want to stop the automation?"):
             print("Automation stop by user...")
             self.status_var.set("Stopping...")
-            
+            self.stopped = True
             self.save_schedule_button.config(state=tk.NORMAL)
             self.start_button.config(state=tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
