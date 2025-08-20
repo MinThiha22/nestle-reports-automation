@@ -38,11 +38,6 @@ class UnifyGUI:
         root.geometry(f"{width}x{height}+{x}+{y}")
         
         root.resizable(False, False)
-        if hasattr(sys, '_MEIPASS'):
-            icon_path = os.path.join(sys._MEIPASS, 'icon.ico')
-        else:
-            icon_path = 'icon.ico'
-        root.iconbitmap(icon_path)
         
         self.create_file_browse_frame()
         self.create_schdule_frame()

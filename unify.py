@@ -3,14 +3,24 @@ from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 import time
 import re
+import sys
 from datetime import datetime, date
 
 DOWNLOADS_PATH = os.path.join(os.path.expanduser("~"), "Downloads")
 def sanitise_filename(name):
   return re.sub(r'[\\/*?:"<>|]', "_", name)
 
+# new functions
+def resource_path(relative_path):
+    """ Get absolute path for bundled resources (works with PyInstaller .exe) """
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
+# Load .env file correctly for both .py and .exe
+load_dotenv(resource_path(".env"))
+
 def login_unify(page):
-  load_dotenv()
   username = os.getenv("UNIFY_USERNAME")
   password = os.getenv("UNIFY_PASSWORD")
   
