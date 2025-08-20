@@ -1,0 +1,1 @@
+pyinstaller --windowed --icon="logo.ico" --add-data ".env;." --add-data "styles.qss;." main_GUI.py
